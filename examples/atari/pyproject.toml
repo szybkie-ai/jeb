@@ -1,0 +1,6 @@
+[project]
+name = "jeb-atari"
+version = "0.1.0"
+description = "JEB plays Atari 2600 games (ale-py, bundled ROMs): a second game for forgetting checks"
+requires-python = ">=3.11"
+dependencies = ["ale-py>=0.12", "gymnasium>=1.0", "httpx>=0.27", "numpy>=1.26", "pillow>=10"]

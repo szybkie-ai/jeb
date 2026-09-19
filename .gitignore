@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+results/
+examples/*/.venv/
+examples/*/out/
+examples/*/data/
+examples/*/*.log
+*.jsonl.bak*
+.DS_Store

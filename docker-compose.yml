@@ -1,0 +1,31 @@
+# vLLM serving the JEB weights in FP8 + the JEB server in front of it. Needs an NVIDIA GPU with the container toolkit.
+#   docker compose up      then      curl localhost:8020/v1/systemone -d '{...}'
+services:
+  engine:
+    image: vllm/vllm-openai:latest
+    command: >
+      --model szybkie-ai/jeb-4b --served-model-name jeb-base --quantization fp8
+      --max-model-len 32768 --max-logprobs 32 --gpu-memory-utilization 0.85
+      --limit-mm-per-prompt '{"image":1,"video":0}'
+    ports: ["8021:8000"]
+    volumes: ["hf-cache:/root/.cache/huggingface"]
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: 1, capabilities: [gpu]}]
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/v1/models"]
+      interval: 15s
+      timeout: 5s
+      retries: 80
+  jeb:
+    build: .
+    command: jeb serve --host 0.0.0.0 --port 8020 --engine vllm-http --engine-url http://engine:8000 --engine-model jeb-base --tokenizer szybkie-ai/jeb-4b --model-id jeb-4b
+    ports: ["8020:8020"]
+    environment:
+      HF_HOME: /root/.cache/huggingface
+    volumes: ["hf-cache:/root/.cache/huggingface"]
+    depends_on:
+      engine: {condition: service_healthy}
+volumes:
+  hf-cache: {}
