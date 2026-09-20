@@ -193,7 +193,7 @@ def run_episode(g: vzd.DoomGame, policy, decision_tics: int = 4, max_decisions: 
         decision, answers = policy.decide(state, raw, mem, questions, frame_png)
         if record_dir is not None:
             frames.append(np.array(g.get_state().screen_buffer))
-            judgments.append({"tic": g.get_episode_time(), "decision": {k: v for k, v in decision.items() if k not in ("subject_obj", "walk_item")}, "answers": answers})
+            judgments.append({"tic": g.get_episode_time(), "latency_ms": round(1000 * policy.latencies[-1], 1) if getattr(policy, "latencies", None) else None, "decision": {k: v for k, v in decision.items() if k not in ("subject_obj", "walk_item")}, "answers": answers})
         if logf:
             logf.write(json.dumps({"episode": episode_id, "map": g.get_doom_map() if hasattr(g, "get_doom_map") else None, "tic": g.get_episode_time(), "frame": frame_rel, "state": state, "questions": questions, "answers": answers, "decision": {k: v for k, v in decision.items() if k not in ("subject_obj", "walk_item")},
                                    "teacher": getattr(policy, "model_id", None) if getattr(policy, "collect", False) else None, "debug": getattr(policy, "last_debug", None)}) + "\n")

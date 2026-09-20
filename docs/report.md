@@ -7,13 +7,13 @@
 JEB (Joint Evaluation of Branches) is a decision model: it takes a *state* and a set of typed *questions* (yes/no,
 a choice among options, a score on an ordered rubric) and returns one calibrated answer per question from a single
 forward pass, with no generated text. It is built on open Qwen language models (a 4B dense model and a 35B
-mixture-of-experts model with about 3B active parameters), fine-tuned on one desk-side machine with an objective on the
+mixture-of-experts model with about 3B active parameters), fine-tuned on a single GPU with an objective on the
 answer distribution itself, and released with open weights, the serving and evaluation code, and this report. Across
 5,549 held-out items from 18 sets the 35B-A3B round raises accuracy from 0.834 to 0.859 over its base and cuts the
 expected calibration error from 0.062 to 0.009, with no set losing more than a point; on a hard multi-option decision
-set the base is right 52% of the time at an ECE of 0.30, the fine-tune 64% at 0.06. A 16-question request costs
-238 ms on a DGX Spark with the 4B model, and a six-field structured output 370 ms against 2.4-3.3 s for generating the
-same JSON with the same weights. A Doom harness turns the model's judgments into play on real levels and lets us
+set the base is right 52% of the time at an ECE of 0.30, the fine-tune 64% at 0.06. Served in FP8, a 16-question request costs
+531 ms against 2,040 ms for the same questions one at a time, and a six-field structured output 220 ms against 918 ms for
+generating the same JSON with the same weights. A Doom harness turns the model's judgments into play on real levels and lets us
 compare it with a commercial decision model.
 
 ## 1. Why a decision model
@@ -116,7 +116,7 @@ what it knows. The differential set makes the point most clearly: candidates are
 the base picks right 52% of the time while sounding sure, the fine-tune 64% with probabilities that match its hit rate.
 
 
-All numbers below are from round 1 (2026-09-18): the merged 4B checkpoint served FP8 in vLLM on one DGX Spark, two
+All numbers below are from round 1 (2026-09-18): the merged 4B checkpoint served FP8 in vLLM on one GPU, two
 presentations per question, raw probabilities unless stated. "Jev" is TypeSafe's hosted model (jev-1.13.0) queried through
 its public API on the same items, for comparison only; the teacher is the 176B model that labelled the training data.
 

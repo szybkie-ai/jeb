@@ -31,7 +31,8 @@ def panel(judgment: dict, height: int) -> Image.Image:
     f, fs = _font(11), _font(10)
     y = 6
     dec = judgment.get("decision", {})
-    d.text((6, y), f"tic {judgment.get('tic', 0)}  goal: {dec.get('goal', '')}", fill=TXT, font=f)
+    lat = judgment.get("latency_ms")
+    d.text((6, y), f"tic {judgment.get('tic', 0)}  goal: {dec.get('goal', '')}" + (f"   {lat:.0f} ms" if lat else ""), fill=TXT, font=f)
     y += 14
     if dec.get("subject"):
         d.text((6, y), f"subject: {dec['subject']}", fill=TXT, font=fs)
@@ -72,6 +73,10 @@ def write_recording(out_dir: Path, frames: list[np.ndarray], judgments: list[dic
         canvas.paste(p, (game.width, 0))
         composed.append(canvas)
     if composed:
+        frames_dir = out_dir / "video_frames"  # for ffmpeg: one PNG per decision at the game's own rate
+        frames_dir.mkdir(exist_ok=True)
+        for i, c in enumerate(composed):
+            c.save(frames_dir / f"{i:05d}.png")
         duration_ms = int(1000 * decision_tics / 35)
         composed[0].save(out_dir / "episode.gif", save_all=True, append_images=composed[1:], duration=duration_ms, loop=0, optimize=False)
         composed[len(composed) // 2].save(out_dir / "sample_frame.png")
