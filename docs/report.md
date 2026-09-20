@@ -76,38 +76,42 @@ recipe and the hyperparameters are not published; the weights and the full evalu
 
 ## 4. Evaluation
 
-### 4.0 Round 3: JEB-35B-A3B on 18 held-out sets
+### 4.0 Round 3: JEB-35B-A3B against its base and against Jev, on identical items
 
 Round 3 moves to Qwen3.6-35B-A3B (mixture of experts, 256 experts, 8 active; about 3B active parameters) and adds
 document question answering (Polish and English passages: multiple choice with gold, claim verification, passage
 retrieval), exam-style medical questions (MedQA) and differential-diagnosis cases built from published case reports.
 The medical rows exist to study calibration on hard multi-option decisions, not to make a medical model; see the
-limitations. Accuracy with raw ECE in parentheses, base and fine-tune scored identically through the same server:
+limitations. All three models answered the same 5,419 held-out items; the base and JEB through the same server, Jev
+through its public API. Accuracy with raw ECE in parentheses:
 
-| set | n | base Qwen3.6-35B-A3B | JEB-35B-A3B (round 3) |
-|---|---|---|---|
-| AG News | 300 | 0.877 (0.091) | 0.913 (0.019) |
-| SST-2 | 300 | 0.957 (0.024) | 0.960 (0.009) |
-| TREC | 300 | 0.937 (0.034) | 0.973 (0.026) |
-| BoolQ | 300 | 0.880 (0.047) | 0.920 (0.030) |
-| CLINC150 (20 options) | 400 | 0.968 (0.009) | 0.980 (0.029) |
-| QNLI | 300 | 0.933 (0.036) | 0.920 (0.037) |
-| RTE | 277 | 0.874 (0.040) | 0.903 (0.022) |
-| IMDB | 300 | 0.960 (0.023) | 0.957 (0.022) |
-| DBpedia | 300 | 0.983 (0.011) | 0.973 (0.030) |
-| ARC-Easy | 300 | 0.990 (0.012) | 0.987 (0.017) |
-| MMLU (500) | 500 | 0.818 (0.059) | 0.838 (0.034) |
-| STS-B | 300 | 0.470 (0.168) | 0.590 (0.075) |
-| blackjack (basic strategy) | 300 | 0.713 (0.171) | 0.713 (0.096) |
-| tic-tac-toe (minimax) | 300 | 0.367 (0.188) | 0.383 (0.054) |
-| document retrieval (which passage / answerable) | 300 | 0.930 (0.053) | 0.953 (0.014) |
-| claim supported by passage | 172 | 0.983 (0.032) | 0.988 (0.017) |
-| MedQA (USMLE) test | 300 | 0.880 (0.022) | 0.897 (0.071) |
-| differential over candidate conditions (+ 'none listed') | 300 | 0.520 (0.304) | 0.637 (0.058) |
-| **all 5,549 items** | | **0.834 (0.062)** | **0.859 (0.009)** |
+| set | n | base Qwen3.6-35B-A3B | JEB-35B-A3B | Jev (hosted) |
+|---|---|---|---|---|
+| AG News | 300 | 0.877 (0.091) | 0.913 (0.019) | 0.863 (0.095) |
+| SST-2 | 300 | 0.957 (0.024) | 0.960 (0.009) | 0.957 (0.102) |
+| TREC | 300 | 0.937 (0.034) | 0.973 (0.026) | 0.933 (0.025) |
+| BoolQ | 300 | 0.880 (0.047) | 0.920 (0.030) | 0.917 (0.022) |
+| CLINC150 (20 options) | 400 | 0.968 (0.009) | 0.980 (0.029) | 0.973 (0.012) |
+| QNLI | 300 | 0.933 (0.036) | 0.920 (0.037) | 0.930 (0.044) |
+| RTE | 277 | 0.874 (0.040) | 0.903 (0.022) | 0.913 (0.042) |
+| IMDB | 300 | 0.960 (0.023) | 0.957 (0.022) | 0.970 (0.049) |
+| DBpedia | 300 | 0.983 (0.011) | 0.973 (0.030) | 0.983 (0.015) |
+| ARC-Easy | 300 | 0.990 (0.012) | 0.987 (0.017) | 0.993 (0.007) |
+| MMLU | 500 | 0.818 (0.059) | 0.838 (0.034) | 0.920 (0.026) |
+| blackjack (basic strategy) | 300 | 0.713 (0.171) | 0.713 (0.096) | 0.837 (0.125) |
+| tic-tac-toe (minimax) | 300 | 0.367 (0.188) | 0.383 (0.054) | 0.427 (0.065) |
+| document retrieval | 300 | 0.930 (0.053) | 0.953 (0.014) | 0.910 (0.046) |
+| claim vs passage | 172 | 0.983 (0.032) | 0.988 (0.017) | 0.977 (0.028) |
+| document MCQ (Polish) | 129 | 1.000 (0.004) | 1.000 (0.007) | 1.000 (0.003) |
+| document MCQ (Polish, medical) | 33 | 1.000 (0.008) | 1.000 (0.019) | 1.000 (0.001) |
+| document MCQ (English, medical) | 8 | 1.000 (0.009) | 1.000 (0.006) | 1.000 (0.000) |
+| MedQA (USMLE) | 300 | 0.880 (0.022) | 0.897 (0.071) | 0.843 (0.050) |
+| differential (6-8 candidates + none) | 300 | 0.520 (0.304) | 0.637 (0.058) | 0.537 (0.213) |
+| **all 5,419 items** | | **0.859 (0.054)** | **0.878 (0.008)** | **0.880 (0.014)** |
 
-Three observations. Calibration is the headline: the ECE falls on every group of sets, overall from 0.062 to 0.009,
-which is below every earlier round and below the hosted Jev's 0.017 measured in 4.1. Nothing is forgotten: the 14
+Three observations. JEB and Jev tie on accuracy (0.878 vs 0.880) with the base at 0.859; on calibration JEB is
+ahead of both (ECE 0.008 vs 0.054 for the base and 0.014 for Jev). Jev leads on knowledge (MMLU 0.920 vs 0.838) and
+on the two games; JEB leads on the document tasks, MedQA and the differential set. Nothing is forgotten: the 14
 sets shared with the earlier rounds go up on aggregate (0.839 to 0.860), with the largest gains on AG News, BoolQ,
 RTE, TREC and STS-B and no set down by more than a point. Knowledge moves little: MedQA gains under two points and
 is now over-confident there (ECE 0.07), and the document multiple-choice holdouts are saturated for base and
