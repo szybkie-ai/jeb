@@ -21,7 +21,7 @@ services:
       retries: 80
   jeb:
     build: .
-    command: jeb serve --host 0.0.0.0 --port 8020 --engine vllm-http --engine-url http://engine:8000 --engine-model jeb-base --tokenizer szybkie-ai/jeb-35b-a3b --model-id jeb-35b-a3b --prefix-pad-block 1056
+    command: jeb serve --host 0.0.0.0 --port 8020 --engine vllm-http --engine-url http://engine:8000 --engine-model jeb-base --tokenizer szybkie-ai/jeb-35b-a3b --model-id jeb-35b-a3b
     ports: ["8020:8020"]
     environment:
       HF_HOME: /root/.cache/huggingface

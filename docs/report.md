@@ -12,7 +12,7 @@ answer distribution itself, and released with open weights, the serving and eval
 5,549 held-out items from 18 sets the 35B-A3B round raises accuracy from 0.834 to 0.859 over its base and cuts the
 expected calibration error from 0.062 to 0.009, with no set losing more than a point; on a hard multi-option decision
 set the base is right 52% of the time at an ECE of 0.30, the fine-tune 64% at 0.06. Served in FP8, a 16-question request costs
-280 ms against 2,024 ms for the same questions one at a time, and a six-field structured output 266 ms against 944 ms for
+535 ms against 2,036 ms for the same questions one at a time, and a six-field structured output 323 ms against 944 ms for
 generating the same JSON with the same weights. A Doom harness turns the model's judgments into play on real levels and lets us
 compare it with a commercial decision model.
 
@@ -159,28 +159,33 @@ the fit (0.034 to 0.027).
 ### 4.2 Latency and cost
 
 JEB-35B-A3B served in FP8 by vLLM on an otherwise idle GPU, through the JEB server, medians of 20 requests after warm-up,
-one ticket-triage state (about 90 tokens) and typed questions on it. Two serving settings matter for a hybrid
-mixture-of-experts model and are part of the published compose file: CUDA graphs captured up to 1,024 tokens (prefill
-of a 300-token prompt: 666 -> 139 ms) and the request prefix padded to the engine's cache block (1,056 tokens for
-this architecture's recurrent-state page), without which the prefix cache never hits.
+one ticket-triage state (about 90 tokens) and typed questions on it. One serving setting matters for a hybrid
+mixture-of-experts model and is in the published compose file: CUDA graphs captured up to 1,024 tokens, which brings the
+prefill of a 300-token prompt from 666 to 139 ms at no cost to the answers.
 
 | request | median latency |
 |---|---|
 | 1 question | 124 ms |
-| 2 questions | 145 ms |
-| 4 questions | 188 ms |
-| 8 questions | 364 ms |
-| 16 questions in one request | 280 ms |
-| 16 questions, one request each | 2,024 ms |
-| six-field structured output (`/v1/structured`) | 266 ms |
+| 2 questions | 146 ms |
+| 4 questions | 189 ms |
+| 8 questions | 374 ms |
+| 16 questions in one request | 535 ms |
+| 16 questions, one request each | 2,036 ms |
+| six-field structured output (`/v1/structured`) | 323 ms |
 | the same six fields generated as JSON by the same weights (42 tokens) | 944 ms |
 
-Sixteen questions in one request cost 2.3x one question rather than 16x, and the structured output is 3.5x faster than
+Sixteen questions in one request cost 4.3x one question rather than 16x, and the structured output is 2.9x faster than
 generating the same JSON, with a probability on every field. The floor of about 120 ms per request is the per-layer cost
-of 40 hybrid layers (expert routing and gated-delta scans) inside one forward pass; the 3B active parameters govern
+of 40 hybrid layers (expert routing and gated-delta scans) in one forward pass; the 3B active parameters govern
 throughput and memory traffic, not this floor. The dense 4B of the earlier rounds answered a single question in tens of
 milliseconds and 16 questions in 238 ms on a shared GPU: on many questions per request the two are close, on single
 questions the small dense model stays faster.
+
+Prefix caching on this architecture only hits at the engine's 1,056-token block granularity (the size of a
+recurrent-state page), so short states are recomputed on every request. Padding the shared prefix to that block
+(`--prefix-pad-block 1056`) makes the cache hit and brings 16 questions to 280 ms and the structured output to 266 ms,
+but it also changes the answers: on 150 Doom questions the distributions moved by a mean total-variation distance of
+0.035 and the top answer flipped on 4% of them. It is therefore off by default and offered as a documented trade-off.
 
 ### 4.3 Doom, long horizon
 
