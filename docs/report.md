@@ -131,7 +131,7 @@ its public API on the same items, for comparison only; the teacher is the 176B m
 
 Accuracy, with raw ECE in brackets where it matters. Sets marked * had training splits in the mix; the knowledge sets
 (ARC-Easy test, MMLU test) and the other unmarked sets were never seen in training and measure whether the fine-tune cost
-general ability. Round 2 (2026-09-19) replaced the trading rows and the old Doom rows with teacher-labelled knowledge
+general ability. Round 2 (2026-09-19) replaced the old Doom rows with teacher-labelled knowledge
 questions (ARC-Challenge train, OpenBookQA, SciQ, CommonsenseQA, MMLU auxiliary train), SNLI, and a small set of Doom
 decisions played under survival-aware orders: 20,402 rows, 638 steps, 66 minutes.
 
@@ -238,12 +238,6 @@ no-collapse check, not a ranking; Pong is beyond every model at this cadence.
 Eight prompts, greedy, thinking off (`data/rounds/r1/gen_check.md`): the trained model still answers correctly and
 coherently (code, translation, arithmetic, summaries) but 20-80% shorter, and made one factual slip (a chess reply) where
 the base was right. No collapse; a drift that round 2 addresses with anchor rows.
-
-### 4.6 Trading (round 1, its own action questions, gold Q1 2024)
-
-410 trades in 658 decisions, win rate 37%, profit factor 0.57, -38.9%: the hindsight action labels taught activity, not
-edge (their training loss never left the uniform level). The trading model is a separate, private round with a different
-objective (price-movement forecasts and a code-side strategy) and is not part of this release.
 
 ## 5. Limitations
 - A research model: no warranty, no support. It must not be used for medical, legal, financial or safety decisions
