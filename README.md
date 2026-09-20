@@ -43,9 +43,8 @@ Details: the technical report in `docs/report.md`. Weights: https://huggingface.
 | model | base | weights | held-out accuracy (ECE) |
 |---|---|---|---|
 | JEB-35B-A3B (round 3) | Qwen3.6-35B-A3B, MoE, ~3B active | `szybkie-ai/jeb-35b-a3b` | 0.859 (0.009) on 5,549 items from 18 sets; base 0.834 (0.062) |
-| JEB-4B (round 2) | Qwen3.5-4B | `szybkie-ai/jeb-4b` | 0.836 (0.011) on 4,177 items from 13 sets; base 0.819 (0.028) |
 
-Raw probabilities, no calibration fit; full tables in `docs/report.md`. Research models, no warranty: evaluate on your
+Raw probabilities, no calibration fit; full tables in `docs/report.md`. A 4B model trained on the same mix follows. Research models, no warranty: evaluate on your
 own data and set your own thresholds before relying on them.
 
 ## Run it with Docker
