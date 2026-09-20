@@ -63,26 +63,13 @@ The base models are vision-language models, so a frame can be attached to the st
 
 ## 3. Training
 
-- **Teacher**: a 176B mixture-of-experts model served NVFP4 on the same machine, asked the same questions with the
-  same prompts; its label distributions (two presentations each) are the targets.
-- **Data**: public classification and rating sets rendered as typed questions (SST-2, AG News, STS-B, TBD list), plus
-  Doom decisions collected by letting the teacher play (state, frame and six typed questions per game tick), plus
-  trading decisions on XAUUSD 2019-2022 (four dateless charts, hindsight soft labels from the realised outcome of each
-  option, not the teacher's calls). Round 1 export: 32,638 rows, 21,946 of them with an image (Doom 12,438, trading
-  9,508); 1,858 validation rows. No proprietary API output is used for training; the real Jev's Doom play is kept for
-  comparison only.
-- **Student**: Qwen3.5-4B (the vision-language checkpoint; the frame or chart goes first in the user turn), LoRA rank 32,
-  alpha 320, on the 248 linear modules of all 32 language-model layers (64.9M parameters; the vision tower is frozen).
-  Objective: restricted softmax over the label tokens vs the target distribution, plus 0.1 x the log-mass the full
-  vocabulary puts on the label set, computed from the hidden state at the answer position (no assistant text, no token
-  cross-entropy). One epoch of 2,040 steps at an effective batch of 16 (2 x 8 accumulation), AdamW 1e-4, cosine to 10%
-  with 30 warmup steps, sequences up to 4,096 tokens grouped by length. Round 2 (TBD): the same plus a consistency term
-  across presentations.
-- **Compute**: one DGX Spark (GB10, 128 GB unified). Without activation checkpointing the run holds ~40 GiB and does
-  ~1,400 tokens/s on 2-3k-token image rows (batch 8 or 16 with checkpointing: 900-950 tokens/s; the GPU is the
-  bottleneck, not kernel launches; Unsloth's fused kernels and `fla` for the linear-attention layers are what make the
-  4B trainable at this speed at all, the plain transformers path is 5x slower). One epoch takes about 9 hours.
-- **Serving**: FP8 in stock vLLM; the calibration file is fitted on the trained model.
+JEB is fine-tuned from an open Qwen base with a decision objective: the model's distribution over the answer labels of
+a question, read as in 2.2, is trained toward a target distribution with a cross-entropy loss (plus a small term that
+keeps the model's mass on the label set). Targets combine gold labels, where the data has them, with the soft
+judgements of a much larger teacher model asked the same questions in the same format; the teacher's calibration is
+therefore part of what is distilled. The training data is a mix of public classification, entailment and
+knowledge sets rendered as typed questions and of domain sets built for the round. The training pipeline, the data
+recipe and the hyperparameters are not published; the weights and the full evaluation are.
 
 ## 4. Evaluation
 
@@ -181,6 +168,6 @@ objective (price-movement forecasts and a code-side strategy) and is not part of
 - Real-time Doom needs ≤150 ms per decision; the clips are rendered at game speed with the measured latency shown.
 
 ## 6. Reproducibility
-Code, prompts, evaluation scripts, the calibration fit and the Doom harness are in the repository; weights on
-Hugging Face; every number above has a command that reproduces it. The training pipeline is private; the data
-recipe is described in 3.
+The server, prompts, evaluation scripts, the calibration fit and the Doom harness are in the repository; weights on
+Hugging Face; every number above has a command that reproduces it against the published weights. The training
+pipeline and the data recipe are private.
