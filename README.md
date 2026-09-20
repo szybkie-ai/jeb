@@ -42,9 +42,11 @@ Details: the technical report in `docs/report.md`. Weights: https://huggingface.
 
 | model | base | weights | held-out accuracy (ECE) |
 |---|---|---|---|
-| JEB-35B-A3B (round 3) | Qwen3.6-35B-A3B, MoE, ~3B active | `szybkie-ai/jeb-35b-a3b` | 0.859 (0.009) on 5,549 items from 18 sets; base 0.834 (0.062) |
+| JEB-35B-A3B | Qwen3.6-35B-A3B, MoE, ~3B active | `szybkie-ai/jeb-35b-a3b` | 0.878 (0.008) on 5,419 items from 20 sets; base 0.859 (0.054); hosted Jev on the same items 0.880 (0.014) |
+| JEB-4B | Qwen3.5-4B, dense | `szybkie-ai/jeb-4b` | 0.825 (0.007) on the same items; base 0.804 (0.038) |
+| GGUF (Q4_K_M, Q8_0) of the 35B | | `szybkie-ai/jeb-35b-a3b-gguf` | for llama.cpp / Ollama with the vision projector; not separately evaluated |
 
-Raw probabilities, no calibration fit; full tables in `docs/report.md`. A 4B model trained on the same mix follows. Research models, no warranty: evaluate on your
+Raw probabilities, no calibration fit; both models trained on the same data; full tables in `docs/report.md`. Research models, no warranty: evaluate on your
 own data and set your own thresholds before relying on them.
 
 ## Run it with Docker
