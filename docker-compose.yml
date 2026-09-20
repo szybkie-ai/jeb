@@ -7,6 +7,7 @@ services:
       --model szybkie-ai/jeb-35b-a3b --served-model-name jeb-base --quantization fp8
       --max-model-len 32768 --max-logprobs 32 --gpu-memory-utilization 0.85 --max-model-len 32768
       --limit-mm-per-prompt '{"image":1,"video":0}'
+      -cc.cudagraph_mode=FULL_AND_PIECEWISE -cc.max_cudagraph_capture_size=1024
     ports: ["8021:8000"]
     volumes: ["hf-cache:/root/.cache/huggingface"]
     deploy:
@@ -20,7 +21,7 @@ services:
       retries: 80
   jeb:
     build: .
-    command: jeb serve --host 0.0.0.0 --port 8020 --engine vllm-http --engine-url http://engine:8000 --engine-model jeb-base --tokenizer szybkie-ai/jeb-35b-a3b --model-id jeb-35b-a3b
+    command: jeb serve --host 0.0.0.0 --port 8020 --engine vllm-http --engine-url http://engine:8000 --engine-model jeb-base --tokenizer szybkie-ai/jeb-35b-a3b --model-id jeb-35b-a3b --prefix-pad-block 1056
     ports: ["8020:8020"]
     environment:
       HF_HOME: /root/.cache/huggingface
