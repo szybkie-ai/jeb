@@ -5,7 +5,7 @@ A System One-compatible decision API on top of open LLMs: send a *state* and a m
 calibrated probabilities — from a single forward pass, no text generation.
 
 ```bash
-pip install jeb
+pip install git+https://github.com/szybkie-ai/jeb   # PyPI package coming as `openjeb`
 jeb serve --engine vllm-http --engine-url http://127.0.0.1:8021 --engine-model openjev-base
 curl -X POST localhost:8020/v1/systemone -H 'Content-Type: application/json' -d '{
   "state": "I was charged twice for order A-104. Please refund the duplicate.",

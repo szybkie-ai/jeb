@@ -1744,60 +1744,6 @@ wheels = [
 ]
 
 [[package]]
-name = "jeb"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "huggingface-hub" },
-    { name = "prometheus-client" },
-    { name = "pydantic" },
-    { name = "tokenizers" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-evals = [
-    { name = "pandas" },
-    { name = "pyarrow" },
-]
-vllm = [
-    { name = "vllm" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pandas" },
-    { name = "pyarrow" },
-    { name = "pytest" },
-    { name = "typesafe-sdk" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.115" },
-    { name = "httpx", specifier = ">=0.27" },
-    { name = "huggingface-hub", specifier = ">=0.25" },
-    { name = "pandas", marker = "extra == 'evals'", specifier = ">=2.0" },
-    { name = "prometheus-client", specifier = ">=0.20" },
-    { name = "pyarrow", marker = "extra == 'evals'", specifier = ">=15" },
-    { name = "pydantic", specifier = ">=2.7" },
-    { name = "tokenizers", specifier = ">=0.20" },
-    { name = "uvicorn", specifier = ">=0.30" },
-    { name = "vllm", marker = "extra == 'vllm'", specifier = ">=0.10" },
-]
-provides-extras = ["vllm", "evals"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pandas", specifier = ">=2.0" },
-    { name = "pyarrow", specifier = ">=15" },
-    { name = "pytest", specifier = ">=8" },
-    { name = "typesafe-sdk", specifier = ">=0.6.0" },
-]
-
-[[package]]
 name = "jinja2"
 version = "3.1.6"
 source = { registry = "https://pypi.org/simple" }
@@ -3246,6 +3192,60 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/9b/21/f6ef335f6e65724aa78b8d792b48d40a48c381715f1e62f5a5049e09d07e/opencv_python_headless-5.0.0.93-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:ed709fdf9aa0bd1f2ed8549e71d19449b03a675bb581eb292285f6861953be37", size = 61204038, upload-time = "2026-07-02T06:56:41.823Z" },
     { url = "https://files.pythonhosted.org/packages/d0/8f/b8756467ea991449a293797f6b3fa80fcfdd29598a0a60d1cd5715b96e61/opencv_python_headless-5.0.0.93-cp37-abi3-win32.whl", hash = "sha256:c6bcd96b185975ea240d22cfdb15a1f6d080cc95264cfbe2621f21bb144d89b9", size = 35411237, upload-time = "2026-07-02T05:50:12.901Z" },
     { url = "https://files.pythonhosted.org/packages/b8/88/763b967f7efd7226b82c9fae16d560cba049b1f0c036647e65c610fd636e/opencv_python_headless-5.0.0.93-cp37-abi3-win_amd64.whl", hash = "sha256:829717b6a95554f273e49e357cee3b3a2a26b6f4842fbc1bed2b45bdd8f87e0e", size = 43825962, upload-time = "2026-07-02T05:50:09.627Z" },
+]
+
+[[package]]
+name = "openjeb"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "huggingface-hub" },
+    { name = "prometheus-client" },
+    { name = "pydantic" },
+    { name = "tokenizers" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+evals = [
+    { name = "pandas" },
+    { name = "pyarrow" },
+]
+vllm = [
+    { name = "vllm" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pandas" },
+    { name = "pyarrow" },
+    { name = "pytest" },
+    { name = "typesafe-sdk" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.115" },
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "huggingface-hub", specifier = ">=0.25" },
+    { name = "pandas", marker = "extra == 'evals'", specifier = ">=2.0" },
+    { name = "prometheus-client", specifier = ">=0.20" },
+    { name = "pyarrow", marker = "extra == 'evals'", specifier = ">=15" },
+    { name = "pydantic", specifier = ">=2.7" },
+    { name = "tokenizers", specifier = ">=0.20" },
+    { name = "uvicorn", specifier = ">=0.30" },
+    { name = "vllm", marker = "extra == 'vllm'", specifier = ">=0.10" },
+]
+provides-extras = ["vllm", "evals"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pandas", specifier = ">=2.0" },
+    { name = "pyarrow", specifier = ">=15" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "typesafe-sdk", specifier = ">=0.6.0" },
 ]
 
 [[package]]

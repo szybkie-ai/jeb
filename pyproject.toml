@@ -1,5 +1,5 @@
 [project]
-name = "jeb"
+name = "openjeb"
 version = "0.1.0"
 description = "System One-compatible decision API on top of open LLMs: state + typed questions in, calibrated probabilities out, one forward pass"
 readme = "README.md"
