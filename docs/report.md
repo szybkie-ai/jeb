@@ -207,6 +207,13 @@ episodes played under survival-aware orders in which the teacher itself died twi
 next Doom data comes from the best player we have, the raw student's own long-horizon play (self-distillation of its
 distributions), with teacher rows kept only for the aim and target questions.
 
+The 35B round was not trained on game data; its play is a transfer test. Six 1,200-decision episodes on the same maps
+and seeds as above, scored in parallel through the FP8 serve: raw Qwen3.6-35B-A3B with the frame survived 2 of 6 (63
+kills in total, two more episodes ended past 1,100 decisions); JEB-35B-A3B recorded alone for the site's video, one
+episode at a time at 1.3 s per decision, reached 428 and 526 decisions with 10 and 14 kills on MAP02 (seeds 91 and 93)
+before dying. Cadence matters on this harness (the director summons by decision count), so single-episode and
+six-parallel numbers are not directly comparable; a full six-episode run of the released checkpoint is pending.
+
 ### 4.4 A game it never saw: Atari (three episodes each)
 
 | game | random | scripted | raw 4B | raw + frame | JEB r1 | JEB r1 + frame | JEB r2 | JEB r2 + frame |
