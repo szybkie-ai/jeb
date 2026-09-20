@@ -87,7 +87,7 @@ def main(argv: list[str] | None = None) -> None:
     s = sub.add_parser("serve", help="run the System One-compatible API server")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8020)
-    s.add_argument("--engine", choices=["vllm-http", "fake"], default=None, help="default: $JEB_ENGINE or vllm-http")
+    s.add_argument("--engine", choices=["vllm-http", "llama-server", "fake"], default=None, help="default: $JEB_ENGINE or vllm-http; llama-server = llama.cpp / GGUF builds")
     s.add_argument("--engine-url", default=None, help="OpenAI-compatible vLLM base URL (default http://127.0.0.1:8021)")
     s.add_argument("--engine-key", default=None)
     s.add_argument("--engine-model", default=None, help="served model name at the engine")

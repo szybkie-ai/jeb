@@ -156,9 +156,26 @@ Round 2 needs no post-hoc calibration: the temperature and prior fit on the five
 (overall ECE 0.011 raw, 0.023 after the fit), so the served model uses the identity calibration. Round 1 benefited from
 the fit (0.034 to 0.027).
 
-### 4.2 Latency and cost (DGX Spark, GPU shared with the teacher)
+### 4.2 Latency and cost
 
-(unchanged from the draft; to be re-measured on an idle GPU before release)
+JEB-35B-A3B served in FP8 by vLLM on an otherwise idle GPU, through the JEB server, medians of 20 requests after warm-up,
+one ticket-triage state (about 90 tokens) and typed questions on it:
+
+| request | median latency |
+|---|---|
+| 1 question | 123 ms |
+| 2 questions | 145 ms |
+| 4 questions | 187 ms |
+| 8 questions | 276 ms |
+| 16 questions in one request | 531 ms |
+| 16 questions, one request each | 2,040 ms |
+| six-field structured output (`/v1/structured`) | 220 ms |
+| the same six fields generated as JSON by the same weights (42 tokens) | 918 ms |
+
+Sixteen questions in one request cost 4.3x one question rather than 16x, because the state is encoded once and the
+question tails are scored as one batch; the structured output is 4.2x faster than generating the same JSON, and every
+field comes with a probability instead of a string. The 4B numbers of the first draft (238 ms for 16 questions,
+370 ms for the structured output, on a GPU shared with the teacher) are superseded by these.
 
 ### 4.3 Doom, long horizon
 

@@ -50,7 +50,7 @@ MISSING = Counter("jeb_missing_label_logprobs_total", "label tokens the engine d
 
 @dataclass
 class Settings:
-    engine: str = "vllm-http"  # vllm-http | fake
+    engine: str = "vllm-http"  # vllm-http | llama-server | fake
     engine_url: str = "http://127.0.0.1:8021"
     engine_key: str = "local"
     engine_model: str = "openjev-base"
@@ -96,6 +96,10 @@ def make_engine(s: Settings) -> Engine:
         return FakeEngine()
     if s.engine == "vllm-http":
         return VllmHttpEngine(s.engine_url, s.engine_model, api_key=s.engine_key)
+    if s.engine == "llama-server":
+        from jeb.engines.llama_server import LlamaServerEngine
+
+        return LlamaServerEngine(s.engine_url, s.engine_model, api_key=s.engine_key)
     raise ValueError(f"unknown engine {s.engine!r}")
 
 
@@ -158,7 +162,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None, t
 
         try:
             chat = {"system": plans[0].system, "images": list(req.images)} if req.images else None
-            results = await request.app.state.engine.score([ScoreItem(p.prompt_ids, p.label_ids, chat={**chat, "user": p.user_text} if chat else None) for p in plans])
+            results = await request.app.state.engine.score([ScoreItem(p.prompt_ids, p.label_ids, chat={**chat, "user": p.user_text, "label_strings": dict(zip(p.label_ids, p.labels))} if chat else None) for p in plans])
         except EngineError as e:
             log.warning("engine error: %s", e)
             raise _Http(529, "overloaded_error", f"engine unavailable: {e}") from e

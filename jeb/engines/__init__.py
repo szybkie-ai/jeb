@@ -2,6 +2,7 @@
 
 from jeb.engines.base import Engine, ScoreItem, ScoreResult
 from jeb.engines.fake import FakeEngine
+from jeb.engines.llama_server import LlamaServerEngine
 from jeb.engines.vllm_http import VllmHttpEngine
 
-__all__ = ["Engine", "FakeEngine", "ScoreItem", "ScoreResult", "VllmHttpEngine"]
+__all__ = ["Engine", "FakeEngine", "LlamaServerEngine", "ScoreItem", "ScoreResult", "VllmHttpEngine"]
