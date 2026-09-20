@@ -1,17 +1,20 @@
-# Jeb: an open decision model built from an open language model
+# JEB: an open decision model built from an open language model
 
-*szybkie.ai — technical report, draft of 2026-09-17. Numbers marked TBD are filled after round-1 training.*
+*szybkie.ai — technical report, revised 2026-09-20 (round 3). Research model, no warranty.*
 
 ## Abstract
 
-Jeb (Joint Evaluation of Branches) is a decision model: it takes a *state* and a set of typed *questions* — yes/no,
-a choice among options, a score on an ordered rubric — and returns one calibrated answer per question from a single
-forward pass, with no generated text. It is built on an open 4B-parameter language model, distilled from a 176B
-teacher on a single desk-side machine, and released with open weights, code and this report. On held-out
-classification sets the calibrated 4B answers within a few points of the teacher; a 16-question request costs
-238 ms on a DGX Spark and a six-field structured output takes 370 ms against 2.4–3.3 s for generating the same JSON
-with the same weights. A Doom harness turns the model's judgments into play on real levels, and the same harness
-lets us compare it head to head with a commercial decision model.
+JEB (Joint Evaluation of Branches) is a decision model: it takes a *state* and a set of typed *questions* (yes/no,
+a choice among options, a score on an ordered rubric) and returns one calibrated answer per question from a single
+forward pass, with no generated text. It is built on open Qwen language models (a 4B dense model and a 35B
+mixture-of-experts model with about 3B active parameters), fine-tuned on one desk-side machine with an objective on the
+answer distribution itself, and released with open weights, the serving and evaluation code, and this report. Across
+5,549 held-out items from 18 sets the 35B-A3B round raises accuracy from 0.834 to 0.859 over its base and cuts the
+expected calibration error from 0.062 to 0.009, with no set losing more than a point; on a hard multi-option decision
+set the base is right 52% of the time at an ECE of 0.30, the fine-tune 64% at 0.06. A 16-question request costs
+238 ms on a DGX Spark with the 4B model, and a six-field structured output 370 ms against 2.4-3.3 s for generating the
+same JSON with the same weights. A Doom harness turns the model's judgments into play on real levels and lets us
+compare it with a commercial decision model.
 
 ## 1. Why a decision model
 
@@ -72,6 +75,46 @@ knowledge sets rendered as typed questions and of domain sets built for the roun
 recipe and the hyperparameters are not published; the weights and the full evaluation are.
 
 ## 4. Evaluation
+
+### 4.0 Round 3: JEB-35B-A3B on 18 held-out sets
+
+Round 3 moves to Qwen3.6-35B-A3B (mixture of experts, 256 experts, 8 active; about 3B active parameters) and adds
+document question answering (Polish and English passages: multiple choice with gold, claim verification, passage
+retrieval), exam-style medical questions (MedQA) and differential-diagnosis cases built from published case reports.
+The medical rows exist to study calibration on hard multi-option decisions, not to make a medical model; see the
+limitations. Accuracy with raw ECE in parentheses, base and fine-tune scored identically through the same server:
+
+| set | n | base Qwen3.6-35B-A3B | JEB-35B-A3B (round 3) |
+|---|---|---|---|
+| AG News | 300 | 0.877 (0.091) | 0.913 (0.019) |
+| SST-2 | 300 | 0.957 (0.024) | 0.960 (0.009) |
+| TREC | 300 | 0.937 (0.034) | 0.973 (0.026) |
+| BoolQ | 300 | 0.880 (0.047) | 0.920 (0.030) |
+| CLINC150 (20 options) | 400 | 0.968 (0.009) | 0.980 (0.029) |
+| QNLI | 300 | 0.933 (0.036) | 0.920 (0.037) |
+| RTE | 277 | 0.874 (0.040) | 0.903 (0.022) |
+| IMDB | 300 | 0.960 (0.023) | 0.957 (0.022) |
+| DBpedia | 300 | 0.983 (0.011) | 0.973 (0.030) |
+| ARC-Easy | 300 | 0.990 (0.012) | 0.987 (0.017) |
+| MMLU (500) | 500 | 0.818 (0.059) | 0.838 (0.034) |
+| STS-B | 300 | 0.470 (0.168) | 0.590 (0.075) |
+| blackjack (basic strategy) | 300 | 0.713 (0.171) | 0.713 (0.096) |
+| tic-tac-toe (minimax) | 300 | 0.367 (0.188) | 0.383 (0.054) |
+| document retrieval (which passage / answerable) | 300 | 0.930 (0.053) | 0.953 (0.014) |
+| claim supported by passage | 172 | 0.983 (0.032) | 0.988 (0.017) |
+| MedQA (USMLE) test | 300 | 0.880 (0.022) | 0.897 (0.071) |
+| differential over candidate conditions (+ 'none listed') | 300 | 0.520 (0.304) | 0.637 (0.058) |
+| **all 5,549 items** | | **0.834 (0.062)** | **0.859 (0.009)** |
+
+Three observations. Calibration is the headline: the ECE falls on every group of sets, overall from 0.062 to 0.009,
+which is below every earlier round and below the hosted Jev's 0.017 measured in 4.1. Nothing is forgotten: the 14
+sets shared with the earlier rounds go up on aggregate (0.839 to 0.860), with the largest gains on AG News, BoolQ,
+RTE, TREC and STS-B and no set down by more than a point. Knowledge moves little: MedQA gains under two points and
+is now over-confident there (ECE 0.07), and the document multiple-choice holdouts are saturated for base and
+fine-tune alike, so the fine-tune changes how the model decides and how honest its probabilities are rather than
+what it knows. The differential set makes the point most clearly: candidates are 6-8 conditions plus "none of these",
+the base picks right 52% of the time while sounding sure, the fine-tune 64% with probabilities that match its hit rate.
+
 
 All numbers below are from round 1 (2026-09-18): the merged 4B checkpoint served FP8 in vLLM on one DGX Spark, two
 presentations per question, raw probabilities unless stated. "Jev" is TypeSafe's hosted model (jev-1.13.0) queried through
@@ -162,10 +205,14 @@ edge (their training loss never left the uniform level). The trading model is a 
 objective (price-movement forecasts and a code-side strategy) and is not part of this release.
 
 ## 5. Limitations
-- A 4B model: below the teacher on nuanced rubrics; confidence is calibrated on the sets we fitted, not universally.
-- Label bias is reduced by rotation, not removed. Options beyond 26 need a second hop.
-- The Doom results are one harness's numbers; different questions give different play.
-- Real-time Doom needs ≤150 ms per decision; the clips are rendered at game speed with the measured latency shown.
+- A research model: no warranty, no support. It must not be used for medical, legal, financial or safety decisions
+  without independent validation and human review; the medical rows in the mix are a calibration study, not a
+  clinical capability, and we make no claim about medical knowledge.
+- Calibration is measured on the sets above; on another distribution, measure it before setting a threshold.
+- The fine-tune does not add knowledge: on knowledge-bound sets the model stays at its base's level.
+- Label bias is reduced by presentation averaging, not removed. Options beyond 26 need a second hop.
+- The Doom results are one harness's numbers; different questions give different play. The 35B round was not
+  trained on game data.
 
 ## 6. Reproducibility
 The server, prompts, evaluation scripts, the calibration fit and the Doom harness are in the repository; weights on
